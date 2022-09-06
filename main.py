@@ -1,11 +1,50 @@
-from scraper import *
-
-#tefas_base_url = "https://www.tefas.gov.tr/FonAnaliz.aspx?FonKod="
+import scraper as sc
+import portfolio as p
+import sys
+from rich import print
 
 fund_codes = ['YAY', 'IPJ', 'MAC']
 
-funds_data_list = get_daily_fund_data(fund_codes)
+def main():
 
-for fund in funds_data_list:
-  print('#' * 100)
-  print(fund)
+  '''Main loop'''
+  while True:
+    option = input("Ana Menü > ")
+
+    match option:
+      case 'h':
+        print_help_in_main()
+      case 'i':
+        open_info()
+      case 'p':
+        open_portfolio()
+      case 'q':
+        print('[bold]Çıkış yapıldı')
+        sys.exit()
+      case _:
+        print("Geçersiz komut")
+
+  # funds_data_list = sc.get_daily_fund_data(fund_codes)
+
+  # for fund in funds_data_list:
+  #   print('#' * 100)
+  #   print(fund)
+
+def print_help_in_main():
+  print(f'''[bold cyan underline]Komutlar:[/bold cyan underline]
+[green][bold]h:[/bold] Yardım
+[bold]p:[/bold] Portföy
+[bold]i:[/bold] Fon Bilgisi
+[bold]q:[/bold] Çıkış[/green]
+  ''')
+
+def open_portfolio():
+  p.main()
+
+def open_info():
+  fund_code = input("Fon kodunu giriniz: ").upper()
+
+  print(sc.get_daily_fund_data(fund_code))
+
+if __name__ == "__main__":
+  main()

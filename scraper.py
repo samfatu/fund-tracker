@@ -1,8 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
+from rich.console import Console
 
 tefas_base_url = "https://www.tefas.gov.tr/FonAnaliz.aspx?FonKod="
 
+console = Console()
 class DailyFundData:
   """Defines daily fund data scraped from fund's TEFAS analysis page"""
 
@@ -37,12 +39,10 @@ class DailyFundData:
 {f'₺{self.price}' : ^40}{f'%{self.daily_p}' : ^40}
 '''
 
-# TODO: birden fazla threadde yapılabilir
-# TODO: İşlem devam ederken gösterilecek "progress bar" eklenebilir
-def get_daily_fund_data(fund_codes):
-  fund_data_list = []
-  for i in range(len(fund_codes)):
-    response = requests.get(tefas_base_url + fund_codes[i])
+# TODO: Scrape methodu selector yerine xpath selectora döndürülebilir. https://www.codespeedy.com/use-xpath-with-beautifulsoup-with-an-example/
+def get_daily_fund_data(fund_code):
+  with console.status("[bold green]Fon bilgileri çekiliyor...") as status:
+    response = requests.get(tefas_base_url + fund_code)
     content = response.content # we get all the content from the website
     soup = BeautifulSoup(content, 'html.parser') # beautiful soup will give a chance to parse
     top_panel = soup.find("ul", class_ = "top-list")
@@ -50,7 +50,7 @@ def get_daily_fund_data(fund_codes):
     price_panel = soup.find("div", class_ = "price-indicators")
 
     name = soup.select_one("#MainContent_FormViewMainIndicators_LabelFund").text
-    code = fund_codes[i]
+    code = fund_code
     category = top_panel.select_one(":nth-child(5) > span").text
     investor_c = int(bottom_panel.select_one("ul > li:nth-child(2) > span").text.replace('.', ''))
     total_value = float(top_panel.select_one(":nth-child(4) > span").text.replace('.', '').replace(',', '.'))
@@ -65,6 +65,13 @@ def get_daily_fund_data(fund_codes):
 
     fund_detail = DailyFundData(code, name, category, investor_c, piece, total_value, marketshare, one_month_p, three_month_p, six_month_p, one_year_p, price, daily_p)
 
-    fund_data_list.append(fund_detail)
+    return fund_detail
+
+# TODO: birden fazla threadde yapılabilir
+# TODO: İşlem devam ederken gösterilecek "progress bar" eklenebilir
+def get_daily_fund_datas(fund_codes):
+  fund_data_list = []
+  for i in range(len(fund_codes)):
+    fund_data_list.append(get_daily_fund_data(fund_codes[i]))
   return fund_data_list
 
