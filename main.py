@@ -11,15 +11,16 @@ def main():
   while True:
     option = input("Ana Menü > ")
 
-    match option:
+    match option.split(' ')[0]:
       case 'h':
         print_help_in_main()
       case 'i':
-        open_info()
+        open_info(option.split(' '))
       case 'p':
         open_portfolio()
       case 'q':
         print('[bold]Çıkış yapıldı')
+        p.connection.close()
         sys.exit()
       case _:
         print("Geçersiz komut")
@@ -41,8 +42,11 @@ def print_help_in_main():
 def open_portfolio():
   p.main()
 
-def open_info():
-  fund_code = input("Fon kodunu giriniz: ").upper()
+def open_info(commands):
+  if (len(commands) == 1):
+    fund_code = input("Fon kodunu giriniz: ").upper()
+  else:
+    fund_code = commands[1].upper()
 
   print(sc.get_daily_fund_data(fund_code))
 
