@@ -60,9 +60,9 @@ def create_sells_db():
   )''')
   connection.commit()
 
-def buy_fund(commands):
+def fund_transaction(commands):
   with console.status("[bold green]Veritabanına kayıt yapılıyor...") as status:
-    if not validations.is_valid_buy_commands(commands):
+    if not validations.is_valid_transaction_commands(commands):
       return
 
     date = datetime.strptime(commands[1], validations.date_format)
@@ -70,7 +70,7 @@ def buy_fund(commands):
     lot = int(commands[3])
     cost = round(float(commands[4]), 6)
 
-    transaction = Transaction(code, lot, cost, date, "buy")
+    transaction = Transaction(code, lot, cost, date, commands[0])
     transaction.insert_to_db()
 
 def main():
@@ -87,7 +87,9 @@ def main():
       case 'p':
         print("Portföyü yazdırır")
       case 'buy':
-        buy_fund(option.split(' '))
+        fund_transaction(option.split(' '))
+      case 'sell':
+        fund_transaction(option.split(' '))
       case 'b':
         return
       case _:
